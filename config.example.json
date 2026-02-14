@@ -1,0 +1,18 @@
+{
+  "city": "São Paulo - SP",
+  "min_rent": "1200",
+  "max_rent": "6000",
+  "min_condo": "0",
+  "max_condo": "2000",
+  "min_iptu": "0",
+  "max_iptu": "1200",
+  "dormitorios": "2",
+  "vagas": "1",
+  "tipo_imovel": "apartamento",
+  "metragem_min": "45",
+  "max_pages_per_site": 10,
+  "max_records": 10000,
+  "output_csv": "output/imoveis.csv",
+  "checkpoint_path": "output/checkpoint.json",
+  "use_dynamic_fallback": true
+}
