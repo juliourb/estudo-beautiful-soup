@@ -21,6 +21,13 @@ pip install playwright
 playwright install chromium
 ```
 
+Se quiser validar rápido tudo de uma vez:
+
+```bash
+make install
+make test
+```
+
 ## Execução (CLI)
 
 ```bash
@@ -31,6 +38,123 @@ python -m src.main \
   --max-pages-per-site 10 \
   --max-records 10000
 ```
+
+## Como testar (passo a passo)
+
+### 1) Teste de unidade (sem internet)
+
+```bash
+python -m pytest -q
+```
+
+### 2) Teste da CLI
+
+```bash
+python -m src.main --help
+```
+
+### 3) Teste real curto (com coleta)
+
+```bash
+python -m src.main \
+  --city "São Paulo - SP" \
+  --min-rent 1200 \
+  --max-rent 4000 \
+  --max-pages-per-site 1 \
+  --max-records 30 \
+  --output-csv output/imoveis_sample.csv \
+  --checkpoint output/checkpoint_sample.json
+```
+
+Depois valide o CSV gerado:
+
+```bash
+python - <<'PY'
+import pandas as pd
+df = pd.read_csv("output/imoveis_sample.csv")
+print(df.head(5))
+print(df.columns.tolist())
+print(f"Registros: {len(df)}")
+PY
+```
+
+### 4) Retomada por checkpoint
+
+Rode o mesmo comando do passo 3 novamente. O crawler usará `checkpoint_sample.json` e continuará da última página processada por site.
+
+
+## Como executar no Google Colab (passo a passo)
+
+A forma mais simples no Colab é clonar o repositório e rodar o script via terminal (`!`).
+
+### Célula 1 — clonar e entrar na pasta
+
+```python
+!git clone <URL_DO_SEU_REPOSITORIO>
+%cd estudo-beautiful-soup
+```
+
+> Se você já subiu os arquivos para o Colab manualmente, só use `%cd` para a pasta correta.
+
+### Célula 2 — instalar dependências
+
+```python
+!python -m pip install -U pip
+!python -m pip install -e .
+```
+
+Opcional (fallback para páginas dinâmicas):
+
+```python
+!python -m pip install playwright
+!playwright install chromium
+```
+
+### Célula 3 — testar se a CLI está ok
+
+```python
+!python -m src.main --help
+```
+
+### Célula 4 — executar uma coleta curta (teste)
+
+```python
+!python -m src.main \
+  --city "São Paulo - SP" \
+  --min-rent 1200 \
+  --max-rent 4000 \
+  --max-pages-per-site 1 \
+  --max-records 30 \
+  --output-csv output/imoveis_sample.csv \
+  --checkpoint output/checkpoint_sample.json
+```
+
+### Célula 5 — abrir o CSV no próprio Colab
+
+```python
+import pandas as pd
+
+df = pd.read_csv("output/imoveis_sample.csv")
+print("Linhas:", len(df))
+display(df.head(10))
+```
+
+### Célula 6 — baixar o CSV para seu computador
+
+```python
+from google.colab import files
+files.download("output/imoveis_sample.csv")
+```
+
+### Retomar do checkpoint no Colab
+
+Para continuar de onde parou, rode **de novo** a célula de execução (Célula 4) com o mesmo `--checkpoint`.
+
+### Dica importante sobre Colab
+
+Se o runtime reiniciar, os arquivos locais podem ser perdidos. Para evitar isso:
+- salve o CSV/JSON no Google Drive, ou
+- baixe os artefatos ao fim da execução (`files.download`).
 
 ## Execução por JSON (opcional)
 

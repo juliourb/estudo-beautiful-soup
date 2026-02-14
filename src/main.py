@@ -28,6 +28,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def load_config(args: argparse.Namespace) -> dict:
 def load_config(args: argparse.Namespace) -> CrawlConfig:
     base = {}
     if args.config:
@@ -53,11 +54,16 @@ def load_config(args: argparse.Namespace) -> CrawlConfig:
         "use_dynamic_fallback": not args.disable_dynamic_fallback,
     }
     base.update({k: v for k, v in merged.items() if v not in (None, "")})
+    return base
     return CrawlConfig(**base)
 
 
 def main() -> None:
     args = parse_args()
+    # Lazy import para permitir `--help` mesmo sem dependências de runtime instaladas.
+    from src.crawler.engine import CrawlConfig, CrawlerEngine
+
+    config = CrawlConfig(**load_config(args))
     config = load_config(args)
     result = CrawlerEngine(config).run()
     print(json.dumps(result, ensure_ascii=False, indent=2))
