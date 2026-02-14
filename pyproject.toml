@@ -1,0 +1,21 @@
+[project]
+name = "estudo-beautiful-soup"
+version = "0.1.0"
+description = "Crawler multi-site de aluguel com BeautifulSoup, pandas e geocodificação OSMnx"
+requires-python = ">=3.10"
+dependencies = [
+  "beautifulsoup4>=4.12.3",
+  "pandas>=2.2.2",
+  "requests>=2.32.3",
+  "lxml>=5.2.2",
+  "osmnx>=1.9.4",
+  "geopy>=2.4.1",
+  "tqdm>=4.66.4"
+]
+
+[project.scripts]
+rent-crawler = "src.main:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
