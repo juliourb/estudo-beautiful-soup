@@ -24,6 +24,7 @@ class VivaRealAdapter(BaseAdapter):
                 Listing(
                     site=self.site_name,
                     titulo=title,
+                    url=self.absolute_url(href),
                     url=href,
                     cidade="São Paulo",
                     metragem=extract_number(text),
@@ -31,4 +32,6 @@ class VivaRealAdapter(BaseAdapter):
                     preco_total=aluguel,
                 )
             )
+        if not listings:
+            return self.extract_json_ld(html)
         return listings

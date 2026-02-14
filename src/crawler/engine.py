@@ -53,6 +53,16 @@ class CrawlerEngine:
         existing_ids = read_existing_ids(csv_path)
         checkpoint = load_checkpoint(checkpoint_path)
         total_added = 0
+        site_stats: dict[str, dict] = {}
+
+        for adapter in self.adapters:
+            site_stats[adapter.site_name] = {
+                "pages_attempted": 0,
+                "listings_extracted": 0,
+                "records_added": 0,
+                "errors": 0,
+                "last_error": "",
+            }
 
         for adapter in self.adapters:
             if self.session.is_blocked(adapter.site_name):
@@ -61,6 +71,7 @@ class CrawlerEngine:
             start_page = int(site_ck.get("last_page", 0)) + 1
 
             for page in range(start_page, self.config.max_pages_per_site + 1):
+                site_stats[adapter.site_name]["pages_attempted"] += 1
                 if total_added >= self.config.max_records:
                     break
 
@@ -79,9 +90,13 @@ class CrawlerEngine:
                         html = fetch_dynamic_html(url)
                         listings = adapter.extract(html)
                 except Exception:
+                    site_stats[adapter.site_name]["errors"] += 1
+                    site_stats[adapter.site_name]["last_error"] = "fetch_or_extract_failed"
                     checkpoint[adapter.site_name] = {"last_page": page, "error": True}
                     save_checkpoint(checkpoint_path, checkpoint)
                     continue
+
+                site_stats[adapter.site_name]["listings_extracted"] += len(listings)
 
                 enriched_rows = []
                 for listing in listings:
@@ -106,6 +121,7 @@ class CrawlerEngine:
 
                 added = append_rows(csv_path, enriched_rows)
                 total_added += added
+                site_stats[adapter.site_name]["records_added"] += added
 
                 checkpoint[adapter.site_name] = {
                     "last_page": page,
@@ -117,4 +133,9 @@ class CrawlerEngine:
                 if added == 0:
                     break
 
+        return {
+            "records_added": total_added,
+            "output_csv": self.config.output_csv,
+            "site_stats": site_stats,
+        }
         return {"records_added": total_added, "output_csv": self.config.output_csv}

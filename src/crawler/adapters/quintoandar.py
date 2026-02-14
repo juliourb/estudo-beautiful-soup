@@ -24,6 +24,7 @@ class QuintoAndarAdapter(BaseAdapter):
                 Listing(
                     site=self.site_name,
                     titulo=title,
+                    url=self.absolute_url(link.get("href", "") if link else ""),
                     url=link.get("href", "") if link else "",
                     cidade="São Paulo",
                     metragem=extract_number(text),
@@ -31,4 +32,6 @@ class QuintoAndarAdapter(BaseAdapter):
                     preco_total=aluguel,
                 )
             )
+        if not out:
+            return self.extract_json_ld(html)
         return out

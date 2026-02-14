@@ -129,6 +129,55 @@ Opcional (fallback para páginas dinâmicas):
   --checkpoint output/checkpoint_sample.json
 ```
 
+O comando imprime JSON com `site_stats` por portal. Se `records_added` vier `0`, veja em `site_stats`:
+- `listings_extracted` (se está extraindo cards),
+- `errors` / `last_error` (se houve bloqueio/falha),
+- `records_added` por site.
+
+
+### Solução de problemas no Colab (IndentationError e versão errada)
+
+Se aparecer erro como:
+
+```text
+IndentationError: expected an indented block after function definition
+```
+
+isso significa que o `src/main.py` local do Colab ficou corrompido ou veio de branch/commit antigo.
+
+Use este fluxo para garantir versão correta:
+
+```python
+%cd /content
+!rm -rf estudo-beautiful-soup
+!git clone -b main --single-branch https://github.com/juliourb/estudo-beautiful-soup.git
+%cd estudo-beautiful-soup
+!git log --oneline -n 5
+!python -m pip install -U pip
+!python -m pip install -e .
+!python -m src.main --help
+```
+
+Valide que o arquivo está íntegro:
+
+```python
+!sed -n '1,120p' src/main.py
+```
+
+E rode o teste curto limpando artefatos antigos:
+
+```python
+!rm -f output/imoveis_sample.csv output/checkpoint_sample.json
+!python -m src.main \
+  --city "São Paulo - SP" \
+  --min-rent 1200 \
+  --max-rent 4000 \
+  --max-pages-per-site 1 \
+  --max-records 30 \
+  --output-csv output/imoveis_sample.csv \
+  --checkpoint output/checkpoint_sample.json
+```
+
 ### Célula 5 — abrir o CSV no próprio Colab
 
 ```python
@@ -193,3 +242,32 @@ Campos:
 - Use limites moderados de páginas e requisições.
 - Respeite termos de uso dos sites e legislação aplicável.
 - Alguns sites podem alterar estrutura HTML frequentemente; ajustes de seletores podem ser necessários.
+
+
+## Recuperação quando as branches foram apagadas (GitHub Web)
+
+Se você ficou só com a `main`, dá para se organizar novamente direto no site do GitHub:
+
+1. Abra seu repositório no GitHub.
+2. Clique no seletor de branch (canto superior esquerdo, onde aparece `main`).
+3. Digite o nome da nova branch (ex.: `feature/crawler-ajustes`).
+4. Clique em **Create branch: feature/crawler-ajustes from 'main'**.
+5. Faça mudanças locais no seu computador/Colab e envie para essa branch:
+   - `git checkout feature/crawler-ajustes`
+   - `git add .`
+   - `git commit -m "Ajustes no crawler"`
+   - `git push -u origin feature/crawler-ajustes`
+6. No GitHub, clique em **Compare & pull request** para abrir o PR.
+7. Revise e clique em **Create pull request**.
+8. Depois de aprovado, clique em **Merge pull request**.
+
+### Se a branch foi apagada por engano e você quer recuperar
+
+No GitHub, após merge/close, muitas vezes aparece o botão **Restore branch** dentro do PR antigo. Se existir, clique nele para recriar a branch com o último estado.
+
+### Boas práticas para evitar perder branches
+
+- Proteja a `main` (Settings → Branches → Add branch protection rule).
+- Use padrão de branches: `feature/*`, `fix/*`, `hotfix/*`.
+- Nunca trabalhar direto na `main`.
+- Sempre abrir PR, mesmo para mudanças pequenas.
