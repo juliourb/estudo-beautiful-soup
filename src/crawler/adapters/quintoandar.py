@@ -25,6 +25,7 @@ class QuintoAndarAdapter(BaseAdapter):
                     site=self.site_name,
                     titulo=title,
                     url=self.absolute_url(link.get("href", "") if link else ""),
+                    url=link.get("href", "") if link else "",
                     cidade="São Paulo",
                     metragem=extract_number(text),
                     preco_aluguel=aluguel,

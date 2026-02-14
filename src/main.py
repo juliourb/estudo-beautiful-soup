@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import json
 
+from src.crawler.engine import CrawlConfig, CrawlerEngine
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Crawler de aluguel multi-site")
@@ -27,6 +29,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_config(args: argparse.Namespace) -> dict:
+def load_config(args: argparse.Namespace) -> CrawlConfig:
     base = {}
     if args.config:
         with open(args.config, "r", encoding="utf-8") as fh:
@@ -52,6 +55,7 @@ def load_config(args: argparse.Namespace) -> dict:
     }
     base.update({k: v for k, v in merged.items() if v not in (None, "")})
     return base
+    return CrawlConfig(**base)
 
 
 def main() -> None:
@@ -60,6 +64,7 @@ def main() -> None:
     from src.crawler.engine import CrawlConfig, CrawlerEngine
 
     config = CrawlConfig(**load_config(args))
+    config = load_config(args)
     result = CrawlerEngine(config).run()
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

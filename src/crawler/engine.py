@@ -63,6 +63,8 @@ class CrawlerEngine:
                 "errors": 0,
                 "last_error": "",
             }
+
+        for adapter in self.adapters:
             if self.session.is_blocked(adapter.site_name):
                 continue
             site_ck = checkpoint.get(adapter.site_name, {})
@@ -136,3 +138,4 @@ class CrawlerEngine:
             "output_csv": self.config.output_csv,
             "site_stats": site_stats,
         }
+        return {"records_added": total_added, "output_csv": self.config.output_csv}

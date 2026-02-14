@@ -25,6 +25,7 @@ class VivaRealAdapter(BaseAdapter):
                     site=self.site_name,
                     titulo=title,
                     url=self.absolute_url(href),
+                    url=href,
                     cidade="São Paulo",
                     metragem=extract_number(text),
                     preco_aluguel=aluguel,

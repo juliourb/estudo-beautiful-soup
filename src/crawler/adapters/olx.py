@@ -24,6 +24,7 @@ class OLXAdapter(BaseAdapter):
                     site=self.site_name,
                     titulo=title,
                     url=self.absolute_url(link.get("href", "") if link else ""),
+                    url=link.get("href", "") if link else "",
                     cidade="São Paulo",
                     preco_aluguel=normalize_money(price_txt),
                     preco_total=normalize_money(price_txt),
